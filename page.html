@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Title of the document</title>
+</head>
+
+<body>
+    <button id="go-button">Go</button>
+</body>
+
+<script src="webusb.js"></script>
+
+<script>
+document.getElementById("go-button").addEventListener("click", 
+function() {
+    console.log("clicky...")
+    getDevices()
+})
+</script>
+</html>
