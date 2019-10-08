@@ -203,3 +203,10 @@ DAP_Transfer
 
 ...
 [5, 0, 1, 2]
+
+
+[131] = uart read
+
+
+
+DAP Link Vendo Stuff : [https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__Info.html](https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__Info.html)
