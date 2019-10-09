@@ -56,6 +56,9 @@ function receiveLoop(result) {
         }
 }
 
+
+
+
 function connectDevice(device) {
     console.log("Connecting")
     console.dir(device)

@@ -1,31 +1,38 @@
 
-# Setup
+# Overall Setup
+
+1. Upgrade Micro:bit to latest firmware
+2. Setup a Web Server
+3. Program the Micro:bit with one of the example programs that generates serial data
+
+
+# Web Server Setup
 
 1. Install a local web server
    1. Python 3 / Python: Use `pip` or `pip3` to install the `http` package.
    2. Run the `http.server` module in the directory containing the project:  `python -m http.server` or `python3 -m http.server` as appropriate.
-   
-# Use
 
-1. Open browser to [http://localhost:8000/page.html](http://localhost:8000/page.html)
-2. Click on "start"
-3. Open the inspector to see events.
+# Accessing the Served Page
 
-# Sample Code for Micro:Bit
+1. Open browser to [http://localhost:8000/page.html](http://localhost:8000/page.html) (Default page for Python Server)
+2. Click on "go"
 
-~~~javascript
-basic.forever(function () {
-    serial.writeLine("Hi...")
-    serial.writeValue("x", input.acceleration(Dimension.X))
-})
-~~~
-
-# One-time Micro:Bit configuration
+## One-time Micro:Bit configuration
 
 Upgrade the micro:bit firmware as describe at: [Updating your micro:bit firmware
 ](https://microbit.org/guide/firmware/)
 
-# Micro:bit program configuration
+## Micro:bit program from Shared Project
+
+1. Open [https://makecode.microbit.org/_20p49eD2uRiP](https://makecode.microbit.org/_20p49eD2uRiP)
+2. Select the Gear Menu in the upper right
+3. Select the `Pair Device` option
+4. Select `Pair Device`
+5. Select the Micro:bit device
+6. Download the code (Blue Download button at the bottom of the window)
+7. Unplug/re-plug Micro:bit (to Un-Pair device)
+
+# Micro:bit program configuration from JavaScript Source
 
 The micro:bit retains it's program until it is explicitly re-programmed or the firmware is upgraded. The program below will send serial data and can be used for initial testing/debugging. 
 
@@ -33,11 +40,20 @@ The micro:bit retains it's program until it is explicitly re-programmed or the f
 2. Open the [MakeCode Editor](https://makecode.microbit.org/#editor)
 3. Select JavaScript from the Blocks/JavaScript slider.
 4. Paste in the code above
+            ```javascript
+            basic.forever(function () {
+                serial.writeLine("message")
+                serial.writeValue("x", Math.map(Math.randomRange(0, 100), 0, 100, -2.4, 18.2))
+                serial.writeValue("y", Math.randomRange(0, 10))
+                basic.pause(500)
+            })
+            ```
 5. Select the Gear Menu in the upper right
 6. Select the `Pair Device` option
-7. Select the Micro:bit device
-8. Download the code (Blue Download button at the bottom of the window)
-9. Unplug/replug Micro:bit (to Un-Pair device)
+7. Select `Pair Device`
+8. Select the Micro:bit device
+9. Download the code (Blue Download button at the bottom of the window)
+10. Unplug/re-plug Micro:bit (to Un-Pair device)
 
 # API
 
@@ -45,6 +61,42 @@ The micro:bit retains it's program until it is explicitly re-programmed or the f
 
 * Basic HTML page layout from W3 schools: [https://www.w3schools.com/html/html5_intro.asp](https://www.w3schools.com/html/html5_intro.asp)
 
+# Capturing All USB functions in JavaScript
+
+This can be done to identify all the messages being sent to a USB device from a WebUSB page, like [MakeCode](http://makecode.microbit.org)
+
+1. Open the page in question
+2. Open the JavaScript console (Inspect the page via developer tools;  Right-click on page and select Insepct)
+3. Paste in the following code, which adds a debugging print message to all calls to most USB functions
+            ```javascript
+
+            var trackerLogOn = true;
+
+            function addTracker(methodName, object) {
+                var temp = object[methodName];
+                object[methodName] = function() {
+                    if(trackerLogOn) {
+                        console.log(methodName + ":");
+                        console.dir(arguments);
+                        console.log("----------------")
+                    }
+                    // this is a USBDevice object
+                    return temp.apply(this, arguments)
+                }
+            }
+
+            addTracker("claimInterface",USBDevice.prototype)
+            addTracker("selectAlternateInterface", USBDevice.prototype)
+            addTracker("controlTransferIn", USBDevice.prototype)
+            addTracker("controlTransferOut", USBDevice.prototype)
+            addTracker("transferIn", USBDevice.prototype)
+            addTracker("transferOut", USBDevice.prototype)
+            //addTracker("selectConfiguration", USBDevice.prototype)
+            addTracker("isochronousTransferIn", USBDevice.prototype)
+            addTracker("isochronousTransferOut", USBDevice.prototype)
+            ```
+4. Use the page to trigger USB operations
+5. Enter `trackerLogOn = false` in the Console to stop collecting data, then scroll back and examine all messages/traffic.
 
 # Capturing USB Packets on Mac
 
@@ -62,7 +114,6 @@ Use Wireshark for capture.  Filter based on device's location ID (get it from Ap
 
 * Start port capture of XH20 interface (wired)
 
-
 # Misc: App Notes / Docs on USB replacing Serial
 
 * [http://ww1.microchip.com/downloads/en/appnotes/doc4322.pdf](http://ww1.microchip.com/downloads/en/appnotes/doc4322.pdf)
@@ -73,76 +124,27 @@ Use Wireshark for capture.  Filter based on device's location ID (get it from Ap
 
 # Misc: USB Enumeration for Micro:Bit
 
+* 0: USBInterface ***USB Mass Storage***
+  * interfaceClass: 8  
+  * interfaceProtocol: 80
+  * interfaceSubclass: 6
+  * interfaceNumber: 0
+* 1: USBInterface ***CDC Control***
+  * interfaceClass: 2  
+  * interfaceProtocol: 1
+  * interfaceSubclass: 2
+  * interfaceNumber: 1
+* 2: USBInterface ***CDC - Data***
+  * interfaceClass: 10
+  * interfaceProtocol: 0
+  * interfaceSubclass: 0
+  * interfaceNumber: 2
+* 3: USBInterface
+  * interfaceNumber: 3
+* 4: USBInterface ***CMSIS-DAP***
+  * interfaceNumber: 4
 
-0: USBConfiguration
-
-0: USBInterface
-interfaceClass: 8           // Mass Storage
-interfaceProtocol: 80
-interfaceSubclass: 6
-interfaceNumber: 0
-
-1: USBInterface
-interfaceClass: 2           // CDC
-interfaceProtocol: 1
-interfaceSubclass: 2
-interfaceNumber: 1
-
-2: USBInterface             // CDC - Data 
-interfaceClass: 10
-interfaceProtocol: 0
-interfaceSubclass: 0
-interfaceNumber: 2
-
-3: USBInterface
-interfaceNumber: 3
-
-4: USBInterface
-interfaceNumber: 4
-
-
-# Tracing USB interactions in Chrome
-
-Things to track:
-
-* Device's `claimInterface()`
-* Device's `transferControlOut()`
-* Device's `transferControlIn()`
-* Device's `transferIn()`
-
-```javascript
-
-var trackerLogOn = true;
-
-function addTracker(methodName, object) {
-    var temp = object[methodName];
-    object[methodName] = function() {
-        if(trackerLogOn) {
-            console.log(methodName + ":");
-            console.dir(arguments);
-            console.log("----------------")
-        }
-        // this is a USBDevice object
-        return temp.apply(this, arguments)
-    }
-}
-
-addTracker("claimInterface",USBDevice.prototype)
-addTracker("selectAlternateInterface", USBDevice.prototype)
-addTracker("controlTransferIn", USBDevice.prototype)
-addTracker("controlTransferOut", USBDevice.prototype)
-addTracker("transferIn", USBDevice.prototype)
-addTracker("transferOut", USBDevice.prototype)
-//addTracker("selectConfiguration", USBDevice.prototype)
-addTracker("isochronousTransferIn", USBDevice.prototype)
-addTracker("isochronousTransferOut", USBDevice.prototype)
-
-```
-
-
-
-
-USBDevice.prototype.
+Most interactions utilize the CMSIS-DAP interface. See [https://arm-software.github.io/CMSIS_5/DAP/html/index.html](https://arm-software.github.io/CMSIS_5/DAP/html/index.html)
 
 
 # Example to `ControlTransferOut`
