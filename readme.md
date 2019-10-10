@@ -69,31 +69,30 @@ This can be done to identify all the messages being sent to a USB device from a 
 2. Open the JavaScript console (Inspect the page via developer tools;  Right-click on page and select Insepct)
 3. Paste in the following code, which adds a debugging print message to all calls to most USB functions
             ```javascript
+var trackerLogOn = true;
 
-            var trackerLogOn = true;
+function addTracker(methodName, object) {
+    var temp = object[methodName];
+    object[methodName] = function() {
+        if(trackerLogOn) {
+            console.log(methodName + ":");
+            console.dir(arguments);
+            console.log("----------------")
+        }
+        // this is a USBDevice object
+        return temp.apply(this, arguments)
+    }
+}
 
-            function addTracker(methodName, object) {
-                var temp = object[methodName];
-                object[methodName] = function() {
-                    if(trackerLogOn) {
-                        console.log(methodName + ":");
-                        console.dir(arguments);
-                        console.log("----------------")
-                    }
-                    // this is a USBDevice object
-                    return temp.apply(this, arguments)
-                }
-            }
-
-            addTracker("claimInterface",USBDevice.prototype)
-            addTracker("selectAlternateInterface", USBDevice.prototype)
-            addTracker("controlTransferIn", USBDevice.prototype)
-            addTracker("controlTransferOut", USBDevice.prototype)
-            addTracker("transferIn", USBDevice.prototype)
-            addTracker("transferOut", USBDevice.prototype)
-            //addTracker("selectConfiguration", USBDevice.prototype)
-            addTracker("isochronousTransferIn", USBDevice.prototype)
-            addTracker("isochronousTransferOut", USBDevice.prototype)
+addTracker("claimInterface",USBDevice.prototype)
+addTracker("selectAlternateInterface", USBDevice.prototype)
+addTracker("controlTransferIn", USBDevice.prototype)
+addTracker("controlTransferOut", USBDevice.prototype)
+addTracker("transferIn", USBDevice.prototype)
+addTracker("transferOut", USBDevice.prototype)
+addTracker("selectConfiguration", USBDevice.prototype)
+addTracker("isochronousTransferIn", USBDevice.prototype)
+addTracker("isochronousTransferOut", USBDevice.prototype)
             ```
 4. Use the page to trigger USB operations
 5. Enter `trackerLogOn = false` in the Console to stop collecting data, then scroll back and examine all messages/traffic.
@@ -122,7 +121,7 @@ Use Wireshark for capture.  Filter based on device's location ID (get it from Ap
 * [https://github.com/microsoft/pxt/blob/83dcac3c75b8681cd2451919840a297d7e0b3c20/pxtlib/webusb.ts](https://github.com/microsoft/pxt/blob/83dcac3c75b8681cd2451919840a297d7e0b3c20/pxtlib/webusb.ts)
   * Micro:bit webusb connection 
 
-# Misc: USB Enumeration for Micro:Bit
+# Misc: USB Enumeration for Micro:Bit and communication details
 
 * 0: USBInterface ***USB Mass Storage***
   * interfaceClass: 8  
@@ -145,6 +144,19 @@ Use Wireshark for capture.  Filter based on device's location ID (get it from Ap
   * interfaceNumber: 4
 
 Most interactions utilize the CMSIS-DAP interface. See [https://arm-software.github.io/CMSIS_5/DAP/html/index.html](https://arm-software.github.io/CMSIS_5/DAP/html/index.html)
+
+## Serial Data
+
+Serial Data is sent via CMSIS-DAP [Vendor Commands](https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__Vendor__gr.html#details)
+
+Source code for Vendor Specific commands is at [https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c](https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c)
+
+
+
+
+
+
+
 
 
 # Example to `ControlTransferOut`
@@ -212,3 +224,15 @@ DAP_Transfer
 
 
 DAP Link Vendo Stuff : [https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__Info.html](https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__Info.html)
+
+
+# DAP UART Packets
+
+Being read from `ID_DAP_Vendor3`.  Based on [https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c](https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c)
+
+Packed format: 
+1. First byte is echo back of command (i.e., `131` decimal)
+2. Second Byte is length of message, `len`
+3. Bytes [2..2+len) are the actual bytes of the messages
+
+Misc: Lines are delimited by newline character (`\n`)
