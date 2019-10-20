@@ -27,19 +27,22 @@
     </div>
 </body>
 
-<script src="webusb.js"></script>
+<!--  Include the webusb support library  -->
+<script src="ubitwebusb.js"></script>
 
 <script>
 
+    // Append a line to the console frame
     function consolePrintln(message) {
         var con = document.getElementById("console")
         con.innerHTML += "<br/>"+message
         con.scrollTop = con.scrollHeight
     }
 
-    // List of connected devices
+    // List of connected devices (a single value could be used if only connecting to one device)
     var connectedDevices = []
 
+    // Example event call-back handler
     function uBitEventHandler(reason, device, data) {
         switch(reason) {
             case "connected":

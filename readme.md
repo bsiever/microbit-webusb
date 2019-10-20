@@ -122,14 +122,30 @@ DAP has several [well defined commands](https://arm-software.github.io/CMSIS_5/D
 
 ## USB Configuration Sequence
 
+Immediately after connection to micro:bit (this assumes the connected device is a micro:bit and all control transfers in/out go to endpoint 4, the CMSIS-DAP endpoint):
 
+1. Select device configuration 1
+2. Claim interface 4 (CMSIS-DAP)
+3. Control Transfer Out [`DAP_Connect`](https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__Connect.html) to default (connect the default device)
+   * Bytes: `[2, 0]`
+4. Control Transfer Out [`DAP_SWJ_Clock`](https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__SWJ__Clock.html) to 10MHz
+   * Bytes: `[0x11, 0x80, 0x96, 0x98, 0]`
+5. Control Transfer Out [`DAP_SWD_Configure`](https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__SWD__Configure.html) to configure the software debug (1 clock turn around, no Wait/Fault phases)
+   * Bytes: `[0x13, 0]]`
+6. Control Transfer Out [DAP Vendor Specific Command (`ID_DAP_Vendor2` or `0x82`)](https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c) to set the UART baud to 115,200bps
+   * Bytes: `[[0x82, 0x00, 0xc2, 0x01, 0x00]`
 
+## USB UART Data Read
 
-# DAP UART Packets
+1. Control Transfer Out [DAP Vendor Specific Command (`ID_DAP_VEndor3` or `0x83`)](https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c) request UART data up to 64 bytes.
+2. Control Transfer In of up to 64 bytes
+
+## DAP UART Packets
 
 Being read from `ID_DAP_Vendor3`.  Based on [https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c](https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c)
 
-Packed format: 
+Packed format:
+
 1. First byte is echo back of command (i.e., `0x83` or `131` decimal)
 2. Second Byte is length of message, `len`
 3. Bytes [2..2+len) are the actual bytes of the messages
@@ -328,3 +344,4 @@ DAP Link Vendor Stuff : [https://arm-software.github.io/CMSIS_5/DAP/html/group__
 5. Parsing
    Single call-back with type-tag/data  All have time-stamp (connect, disconnect, connectionFailure, console, graph-data(graph, series, data), graph-event(graph, series, event string));  Include device / multi-device
 6. JSDoc 
+7. GitHub page

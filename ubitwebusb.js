@@ -1,4 +1,9 @@
 
+/**
+ * JavaScript functions for interacting with micro:bit microcontrollers over WebUSB
+ * (Only works in Chrome browsers;  Pages must be either HTTPS or local)
+ */
+
 const MICROBIT_VENDOR_ID = 0x0d28
 const MICROBIT_PRODUCT_ID = 0x0204
 const MICROBIT_DAP_INTERFACE = 4;
@@ -23,10 +28,6 @@ const DAPInReportRequest =  {
     value: controlTransferInReport,
     index: MICROBIT_DAP_INTERFACE
 }
-
-// Callback reasons
-//   "connection failure", "connected", "disconnected", "error"
-
 
 // Add a delay() method to promises 
 // NOTE: I found this on-line somewhere but didn't note the source and haven't been able to find it!
@@ -75,7 +76,7 @@ function uBitOpenDevice(device, callback) {
                 var messageToNewline = buffer.slice(0,firstNewline)
 
                 // Deal with line
-                // Parse data and add in time stamp
+                // TODO: Parse data and add in time stamp
                 callback("data", device, messageToNewline)
 
                 buffer = buffer.slice(firstNewline+1)
@@ -111,14 +112,14 @@ function uBitDisconnect(device) {
 }
 
 /**
- * 
+ * Send a string to a specific device
  * @param {USBDevice} device 
  * @param {string} data to send (must not include newlines)
  */
 function uBitSend(device, data) {
     if(!device.opened)
         return
-    // Need to sent 0x84 (command), length (including newline), data's characters, newline
+    // Need to send 0x84 (command), length (including newline), data's characters, newline
     let fullLine = data+'\n'
     let encoded = new TextEncoder("utf-8").encode(fullLine);
     let message = new Uint8Array(1+1+fullLine.length)
@@ -128,10 +129,20 @@ function uBitSend(device, data) {
     device.controlTransferOut(DAPOutReportRequest, message) // DAP ID_DAP_Vendor3: https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c
 }
 
+// Callback reasons
+//   "connection failure", "connected", "disconnected", "error"
+//   "console", "graph-data", "graph-event"
+
+
 /**
  * Allow users to select a device to connect to.
  * 
- * @param {function(string, USBDevice, data)} callback function
+ * @param {function(reason string, USBDevice, data)} callback function for device events
+ * 
+ * The reason string can be:
+ *  "connection failure":  User didn't select a valid device (device and data are null) 
+ *  "connected": device is the newly connected device, data is null
+ *  "disconnected", "error"
  */
 function uBitConnectDevice(callback) { 
     navigator.usb.requestDevice({filters: [{ vendorId: MICROBIT_VENDOR_ID, productId: 0x0204 }]})
