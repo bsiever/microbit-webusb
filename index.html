@@ -12,13 +12,13 @@
                 <button id="connect" class="button">Connect</button>
         </div>
         <div class="row header">
-                <button id="disconnect" class="button">Disconnect</button>
+                <button id="disconnect" class="button">Disconnect All</button>
         </div>
         <div class="row header">
-                <button id="send" class="button">send "Test"</button>
+                <button id="send" class="button">send "Test" to All</button>
         </div>
         <div class="row header">
-                <button id="clear" class="button">Clear</button>
+                <button id="clear" class="button">Clear Console</button>
         </div>
 
         <div id="console" class="row content" style="overflow:auto;border:4px solid black;padding:2%">
@@ -30,12 +30,6 @@
 <script src="webusb.js"></script>
 
 <script>
-    let count = 0
-    // Make the "go" button open the request devices box
-    document.getElementById("connect").addEventListener("click", uBitGetDevices)
-    document.getElementById("disconnect").addEventListener("click", uBitDisconnect)
-    document.getElementById("clear").addEventListener("click", () => { document.getElementById("console").innerHTML = "" })
-    document.getElementById("send").addEventListener("click", () => { uBitSend("Test" + count); count++ })
 
     function consolePrintln(message) {
         var con = document.getElementById("console")
@@ -43,20 +37,37 @@
         con.scrollTop = con.scrollHeight
     }
 
-    function onDisconnect() {
-        consolePrintln("<b>Disconnected</b>")
-    }
-    function onConnect() {
-        consolePrintln("<b>Connected!</b>")
-    }
-    function onConnectionFailure() {
-        consolePrintln("<b>Connection Failure</b>")
-    }
-    function onData(d) {
-        consolePrintln("Data: " + d)
+    // List of connected devices
+    var connectedDevices = []
+
+    function uBitEventHandler(reason, device, data) {
+        switch(reason) {
+            case "connected":
+                consolePrintln("<b>Connected!</b>")
+                connectedDevices.push(device)
+                break;
+            case "disconnected":
+                consolePrintln("<b>Disconnected</b>")
+                connectedDevices = connectedDevices.filter( v => v != device)
+                break;
+            case "connection failure":
+                consolePrintln("<b>Connection Failure</b>")
+                break;
+            case "error":
+                consolePrintln("<b>Error</b>")                
+                break;
+            case "data":
+                consolePrintln("Data: " + data)
+                break;
+        }
     }
 
-    uBitSetCallbacks(onConnect, onDisconnect, onData, onConnectionFailure)
+    // Make the "go" button open the request devices box
+    document.getElementById("connect").addEventListener("click", () => uBitConnectDevice(uBitEventHandler))
+    document.getElementById("disconnect").addEventListener("click", () => connectedDevices.forEach(d=>uBitDisconnect(d)))
+    document.getElementById("clear").addEventListener("click", () => { document.getElementById("console").innerHTML = "" })
+    document.getElementById("send").addEventListener("click", () => { connectedDevices.forEach( d=>uBitSend(d, "Test")) })
+
 </script>
 
 </html>
