@@ -28,9 +28,6 @@ const DAPInReportRequest =  {
 //   "connection failure", "connected", "disconnected", "error"
 
 
-
-
-
 // Add a delay() method to promises 
 // NOTE: I found this on-line somewhere but didn't note the source and haven't been able to find it!
 Promise.delay = function(duration){
@@ -41,7 +38,9 @@ Promise.delay = function(duration){
     });
 }
 
-
+/*
+   Open and configure a selected device and then start the read-loop
+ */
 function uBitOpenDevice(device, callback) {
     function controlTransferOutFN(data) {
         return () => { return device.controlTransferOut(DAPOutReportRequest, data) }
@@ -101,12 +100,21 @@ function uBitOpenDevice(device, callback) {
         .catch(error => callback("error", device, error));
 }
 
+/**
+ * Disconnect from a device 
+ * @param {USBDevice} device to disconnect from 
+ */
 function uBitDisconnect(device) {
     if(device && device.opened) {
         device.close()
     }
 }
 
+/**
+ * 
+ * @param {USBDevice} device 
+ * @param {string} data to send (must not include newlines)
+ */
 function uBitSend(device, data) {
     if(!device.opened)
         return
@@ -120,6 +128,11 @@ function uBitSend(device, data) {
     device.controlTransferOut(DAPOutReportRequest, message) // DAP ID_DAP_Vendor3: https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c
 }
 
+/**
+ * Allow users to select a device to connect to.
+ * 
+ * @param {function(string, USBDevice, data)} callback function
+ */
 function uBitConnectDevice(callback) { 
     navigator.usb.requestDevice({filters: [{ vendorId: MICROBIT_VENDOR_ID, productId: 0x0204 }]})
         .then(  d => { if(!d.opened) uBitOpenDevice(d, callback)} )

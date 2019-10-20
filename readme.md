@@ -75,6 +75,11 @@ The program below will send serial data and can be used for initial testing/debu
 
 # API
 
+There are four main functions:
+1. `uBitConnectDevice(callback)`
+2. `uBitSend(device)`
+3. `uBitDisconnect(device)`
+
 
 ## Graph Message Types and Formats
 
@@ -322,4 +327,4 @@ DAP Link Vendor Stuff : [https://arm-software.github.io/CMSIS_5/DAP/html/group__
 4. Clean up Docs
 5. Parsing
    Single call-back with type-tag/data  All have time-stamp (connect, disconnect, connectionFailure, console, graph-data(graph, series, data), graph-event(graph, series, event string));  Include device / multi-device
-
+6. JSDoc 
