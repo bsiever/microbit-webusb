@@ -30,22 +30,22 @@ const DAPInReportRequest =  {
 //   3) onData(Graph, Series, Data)
 //   4) onConnectionFailure
 
-const USBCallbacks = {
+const uBitCallbacks = {
     onConnect: function() {},
     onDisconnect: function() {},
     onData: function() {}, 
     onConnectionFailure: function() {}
 }
 
-function setCallbacks(onConnect, onDisconnect, onData, onConnectionFailure) {
+function uBitSetCallbacks(onConnect, onDisconnect, onData, onConnectionFailure) {
     if(onConnect)
-        USBCallbacks.onConnect = onConnect
+        uBitCallbacks.onConnect = onConnect
     if(onDisconnect)
-        USBCallbacks.onDisconnect = onDisconnect
+        uBitCallbacks.onDisconnect = onDisconnect
     if(onData)
-        USBCallbacks.onData = onData
+        uBitCallbacks.onData = onData
     if(onConnectionFailure)
-        USBCallbacks.onConnectionFailure = onConnectionFailure
+        uBitCallbacks.onConnectionFailure = onConnectionFailure
 }
 
 
@@ -59,7 +59,9 @@ Promise.delay = function(duration){
     });
 }
 
-function connectDevice(device) {
+var uBitConnectedDevice = null
+
+function uBitConnectDevice(device) {
 
     function controlTransferOutFN(data) {
         return () => { return device.controlTransferOut(DAPOutReportRequest, data) }
@@ -75,13 +77,16 @@ function connectDevice(device) {
             if (data.status != "ok") {
                 return Promise.delay(500).then(transferLoop);
             }
+            // First byte is echo of get UART command
+
+
             let arr = new Uint8Array(data.data.buffer)
             if(arr.length<2)  // Not a valid array: Delay
                 return Promise.delay(100).then(transferLoop)
 
             // Data: Process and get more
-            var len = arr[1]
-            if(len==0) // No data: delay
+            var len = arr[1]  // Second byte is length of remaining message
+            if(len==0) // If no data: delay
                 return Promise.delay(20).then(transferLoop)
             
             var msg = arr.slice(2,2+len)
@@ -90,8 +95,10 @@ function connectDevice(device) {
             var firstNewline = buffer.indexOf("\n")
             while(firstNewline>=0) {
                 var messageToNewline = buffer.slice(0,firstNewline)
+
                 // Deal with line
-                USBCallbacks.onData(messageToNewline)
+                // Parse data and add in time stamp
+                uBitCallbacks.onData(messageToNewline)
 
                 buffer = buffer.slice(firstNewline+1)
                 firstNewline = buffer.indexOf("\n")
@@ -100,7 +107,7 @@ function connectDevice(device) {
             return Promise.delay(5).then(transferLoop);
         })
         // Error here probably means micro:bit disconnected
-        .catch(error => USBCallbacks.onDisconnect(error));
+        .catch(error => uBitCallbacks.onDisconnect(error));
     }
 
     device.open()
@@ -110,13 +117,21 @@ function connectDevice(device) {
         .then(controlTransferOutFN(Uint8Array.from([0x11, 0x80, 0x96, 0x98, 0]))) // Set Clock: 0x989680 = 10MHz : https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__SWJ__Clock.html
         .then(controlTransferOutFN(Uint8Array.from([0x13, 0]))) // SWD Configure (1 clock turn around; no wait/fault): https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__SWD__Configure.html
         .then(controlTransferOutFN(Uint8Array.from([0x82, 0x00, 0xc2, 0x01, 0x00]))) // Vendor Specific command 2 (ID_DAP_Vendor2): https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c ;  0x0001c200 = 115,200kBps
-        .then( () => { USBCallbacks.onConnect();  return Promise.resolve()}) 
+        .then( () => { uBitCallbacks.onConnect(); uBitConnectedDevice = device;  return Promise.resolve()}) 
         .then(transferLoop)
-        .catch(error => USBCallbacks.onConnectionFailure(error));
+        .catch(error => uBitCallbacks.onConnectionFailure(error));
 }
 
-function getDevices() { 
+function uBitDisconnect() {
+    if(uBitConnectedDevice)
+        uBitConnectedDevice.close()
+    uBitConnectedDevice = null;
+}
+
+function uBitGetDevices() { 
+    uBitDisconnect()
+
     navigator.usb.requestDevice({filters: [{ vendorId: MICROBIT_VENDOR_ID, productId: 0x0204 }]})
-        .then(  d => connectDevice(d) )
-        .catch( () => USBCallbacks.onConnectionFailure("No micro:bit Connected"))
+        .then(  d => uBitConnectDevice(d) )
+        .catch( () => uBitCallbacks.onConnectionFailure("No micro:bit Connected"))
 }
