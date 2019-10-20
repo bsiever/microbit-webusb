@@ -15,7 +15,7 @@ Upgrade the micro:bit firmware as describe at: [Updating your micro:bit firmware
 ## Program the Micro:bit from Shared Project
 
 1. Plug the Micro:bit into the computer
-2. Open [https://makecode.microbit.org/_1kdf356Xgdaz](https://makecode.microbit.org/_1kdf356Xgdaz)
+2. Open [https://makecode.microbit.org/_Pya288iq3eo2](https://makecode.microbit.org/_Pya288iq3eo2)
 3. Select the Gear Menu in the upper right
 4. Select the `Pair Device` option
 5. Select `Pair Device`
@@ -36,17 +36,21 @@ The program below will send serial data and can be used for initial testing/debu
 3. Select JavaScript from the Blocks/JavaScript slider.
 4. Paste in the code above
             ```javascript
+            serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+                serial.writeLine("echo " + serial.readUntil(serial.delimiters(Delimiters.NewLine)))
+            })
             basic.forever(function () {
                 serial.writeValue("x", Math.map(Math.randomRange(0, 100), 0, 100, -2.4, 18.2))
                 serial.writeValue("y data", Math.randomRange(0, 10))
                 serial.writeValue("graph2.a", Math.randomRange(-5, 10))
                 serial.writeValue("graph2.b data", Math.randomRange(-5, 10))
                 if (Math.randomRange(0, 10) == 5) {
-                    serial.writeString("x:\"Hi\"")
+                    serial.writeLine("x:\"Hi\"")
                 }
                 if (Math.randomRange(0, 50) == 5) {
-                    serial.writeString("console log")
+                    serial.writeLine("console log")
                 }
+                basic.pause(500)
             })
             ```
 5. Select the Gear Menu in the upper right
@@ -296,7 +300,7 @@ DAP_Transfer
 
 
 
-DAP Link Vendo Stuff : [https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__Info.html](https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__Info.html)
+DAP Link Vendor Stuff : [https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__Info.html](https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__Info.html)
 
 
 
@@ -317,6 +321,5 @@ DAP Link Vendo Stuff : [https://arm-software.github.io/CMSIS_5/DAP/html/group__D
 3. Project Page / Repos
 4. Clean up Docs
 5. Parsing
-   Single call-back with type-tag/data  All have time-stamp (connect, disconnect, connectionFailure, console, graph-data(graph, series, data), graph-event(graph, series, event string))
-6. Send-data
+   Single call-back with type-tag/data  All have time-stamp (connect, disconnect, connectionFailure, console, graph-data(graph, series, data), graph-event(graph, series, event string));  Include device / multi-device
 

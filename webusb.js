@@ -128,6 +128,19 @@ function uBitDisconnect() {
     uBitConnectedDevice = null;
 }
 
+
+
+function uBitSend(data) {
+    // Need to sent 0x84 (command), length (including newline), data's caracters, newline
+    let fullLine = data+'\n'
+    let encoded = new TextEncoder("utf-8").encode(fullLine);
+    let message = new Uint8Array(1+1+fullLine.length)
+    message[0] = 0x84
+    message[1] = encoded.length
+    message.set(encoded, 2)
+    uBitConnectedDevice.controlTransferOut(DAPOutReportRequest, message) // DAP ID_DAP_Vendor3: https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c
+}
+
 function uBitGetDevices() { 
     uBitDisconnect()
 

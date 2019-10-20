@@ -15,6 +15,9 @@
                 <button id="disconnect" class="button">Disconnect</button>
         </div>
         <div class="row header">
+                <button id="send" class="button">send "Test"</button>
+        </div>
+        <div class="row header">
                 <button id="clear" class="button">Clear</button>
         </div>
 
@@ -27,10 +30,12 @@
 <script src="webusb.js"></script>
 
 <script>
+    let count = 0
     // Make the "go" button open the request devices box
     document.getElementById("connect").addEventListener("click", uBitGetDevices)
     document.getElementById("disconnect").addEventListener("click", uBitDisconnect)
     document.getElementById("clear").addEventListener("click", () => { document.getElementById("console").innerHTML = "" })
+    document.getElementById("send").addEventListener("click", () => { uBitSend("Test" + count); count++ })
 
     function consolePrintln(message) {
         var con = document.getElementById("console")
