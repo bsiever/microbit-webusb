@@ -2,39 +2,34 @@
 # Overall Setup
 
 1. Upgrade Micro:bit to latest firmware
-2. Setup a Web Server
-3. Program the Micro:bit with one of the example programs that generates serial data
+2. Program the Micro:bit with one of the example programs that generates serial data
+3. Setup a Web Server & Open the project's page
 
+## Upgrade Micro:bit to latest firmware
 
-# Web Server Setup
-
-1. Install a local web server
-   1. Python 3 / Python: Use `pip` or `pip3` to install the `http` package.
-   2. Run the `http.server` module in the directory containing the project:  `python -m http.server` or `python3 -m http.server` as appropriate.
-
-# Accessing the Served Page
-
-1. Open browser to [http://localhost:8000/page.html](http://localhost:8000/page.html) (Default page for Python Server)
-2. Click on "go"
-
-## One-time Micro:Bit configuration
+This should only be needed one time for each micro:bit.
 
 Upgrade the micro:bit firmware as describe at: [Updating your micro:bit firmware
 ](https://microbit.org/guide/firmware/)
 
-## Micro:bit program from Shared Project
+## Program the Micro:bit from Shared Project
 
-1. Open [https://makecode.microbit.org/_20p49eD2uRiP](https://makecode.microbit.org/_20p49eD2uRiP)
-2. Select the Gear Menu in the upper right
-3. Select the `Pair Device` option
-4. Select `Pair Device`
-5. Select the Micro:bit device
-6. Download the code (Blue Download button at the bottom of the window)
-7. Unplug/re-plug Micro:bit (to Un-Pair device)
+1. Plug the Micro:bit into the computer
+2. Open [https://makecode.microbit.org/_20p49eD2uRiP](https://makecode.microbit.org/_20p49eD2uRiP)
+3. Select the Gear Menu in the upper right
+4. Select the `Pair Device` option
+5. Select `Pair Device`
+6. Select the Micro:bit device
+7. Download the code (Blue Download button at the bottom of the window)
+8. Unplug/re-plug Micro:bit (to Un-Pair device)
 
-# Micro:bit program configuration from JavaScript Source
+The micro:bit retains it's program until it is explicitly re-programmed or the firmware is upgraded. This programming process won't need to be repeated unless a different program is desired (which may be needed to demonstrate different the different ways to annotate graphs)
 
-The micro:bit retains it's program until it is explicitly re-programmed or the firmware is upgraded. The program below will send serial data and can be used for initial testing/debugging. 
+## Program the Micro:bit from JavaScript Source
+
+This is an alternative to the above.  Either can be done, but there's no reason to do both.  
+
+The program below will send serial data and can be used for initial testing/debugging.
 
 1. Connect USB cable
 2. Open the [MakeCode Editor](https://makecode.microbit.org/#editor)
@@ -54,6 +49,21 @@ The micro:bit retains it's program until it is explicitly re-programmed or the f
 8. Select the Micro:bit device
 9. Download the code (Blue Download button at the bottom of the window)
 10. Unplug/re-plug Micro:bit (to Un-Pair device)
+
+# Setup a Web Server
+
+1. Install a local web server
+   1. Python 3 / Python: Use `pip` or `pip3` to install the `http` package. (ex: Open a terminal window / command prompt and run `pip install http`)
+   2. Run the `http.server` module in the directory containing the project:  `python -m http.server` or `python3 -m http.server` as appropriate.
+
+## Open the project's page
+
+1. Open browser to [http://localhost:8000/page.html](http://localhost:8000/page.html) (Default page for Python Server)
+2. Click on "go"
+
+
+
+
 
 # API
 
@@ -109,7 +119,7 @@ sudo ifconfig XHC20 up
 
 (`sudo ifconfig XHC20 down` when done)
 
-Use Wireshark for capture.  Filter based on device's location ID (get it from Apple Menu, `About this Mac...`, `System Report`, `USB`, select the device and look at the Loation ID): `usb.darwin.location_id == 0x14200000`
+Use Wireshark for capture.  Filter based on device's location ID (get it from Apple Menu, `About this Mac...`, `System Report`, `USB`, select the device and look at the Location ID): `usb.darwin.location_id == 0x14200000`
 
 * Start port capture of XH20 interface (wired)
 
@@ -145,9 +155,11 @@ Use Wireshark for capture.  Filter based on device's location ID (get it from Ap
 
 Most interactions utilize the CMSIS-DAP interface. See [https://arm-software.github.io/CMSIS_5/DAP/html/index.html](https://arm-software.github.io/CMSIS_5/DAP/html/index.html)
 
-## Serial Data
+## Serial Data Details
 
 Serial Data is sent via CMSIS-DAP [Vendor Commands](https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__Vendor__gr.html#details)
+
+
 
 Source code for Vendor Specific commands is at [https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c](https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c)
 
@@ -236,3 +248,39 @@ Packed format:
 3. Bytes [2..2+len) are the actual bytes of the messages
 
 Misc: Lines are delimited by newline character (`\n`)
+
+
+# USB Misc
+
+[http://www.usbmadesimple.co.uk/ums_3.htm](http://www.usbmadesimple.co.uk/ums_3.htm)
+
+[http://markdingst.blogspot.com/2014/06/implementing-usb-communication-device.html](http://markdingst.blogspot.com/2014/06/implementing-usb-communication-device.html)
+
+
+# Graph Message Types and Formats
+
+Data may be shown in a combination of zero or more graphs that show a single series and zero or more graphs that show multiple series. There may also be "events" (descriptive items with a string)
+
+The number of graphs and series will now be known in advance.  It must be determined from the streaming data.
+
+## Values for a graph with a single series
+
+Format: `NAME:NUMBER`
+* `NAME` is a string name of the graph (and the name of the series)
+* `NUMBER` is a numeric value to graph
+  
+Format: `NAME:STRING`
+* `NAME` is a string name of the graph
+* `String` is a string for an event
+
+## Values for a graph with multiple series
+
+Format: `NAME.SERIES:NUMBER`
+* `NAME` is a string name of the graph (and the name of the series)
+* `SERIES` is a string name of the series for the data
+* `NUMBER` is a numeric value to graph
+  
+Format: `NAME.SERIES:STRING`
+* `NAME` is a string name of the graph
+* `SERIES` is a string name of the series for the data
+* `String` is a string for an event

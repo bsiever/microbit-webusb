@@ -184,7 +184,7 @@ var pkt = Uint8Array.from([0,254]);
 //         .catch(error => { console.log(error); });
 }
 
-function getDevices() {
+function getDevices() { 
     navigator.usb.requestDevice({filters: [{ vendorId: MICROBIT_VENDOR_ID, productId: 0x0204 }]})
         .then(  d => connectDevice(d) )
         .catch( () => console.log("Failed to find Micro:bit.  Is it plugged in? Did you pick it and select connect?"))
