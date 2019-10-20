@@ -308,3 +308,12 @@ DAP Link Vendo Stuff : [https://arm-software.github.io/CMSIS_5/DAP/html/group__D
 [http://markdingst.blogspot.com/2014/06/implementing-usb-communication-device.html](http://markdingst.blogspot.com/2014/06/implementing-usb-communication-device.html)
 
 
+
+
+# TODOs
+
+1. Charting libraries
+2. Blurb
+3. Project Page / Repos
+4. Clean up Docs
+5. Parsing

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="UTF-8">
+    <title>Micro:bit WebUSB Console</title>
+</head>
+
+<body>
+    <div class="box">
+        <div class="row header">
+                <button id="connect" class="button">Connect</button>
+        </div>
+        <div class="row header">
+                <button id="disconnect" class="button">Disconnect</button>
+        </div>
+        <div class="row header">
+                <button id="clear" class="button">Clear</button>
+        </div>
+
+        <div id="console" class="row content" style="overflow:auto;border:4px solid black;padding:2%">
+            Waiting for connection.
+        </div>                            
+    </div>
+</body>
+
+<script src="webusb.js"></script>
+
+<script>
+    // Make the "go" button open the request devices box
+    document.getElementById("connect").addEventListener("click", uBitGetDevices)
+    document.getElementById("disconnect").addEventListener("click", uBitDisconnect)
+    document.getElementById("clear").addEventListener("click", () => { document.getElementById("console").innerHTML = "" })
+
+    function consolePrintln(message) {
+        var con = document.getElementById("console")
+        con.innerHTML += "<br/>"+message
+        con.scrollTop = con.scrollHeight
+    }
+
+    function onDisconnect() {
+        consolePrintln("<b>Disconnected</b>")
+    }
+    function onConnect() {
+        consolePrintln("<b>Connected!</b>")
+    }
+    function onConnectionFailure() {
+        consolePrintln("<b>Connection Failure</b>")
+    }
+    function onData(d) {
+        consolePrintln("Data: " + d)
+    }
+
+    uBitSetCallbacks(onConnect, onDisconnect, onData, onConnectionFailure)
+</script>
+
+</html>
