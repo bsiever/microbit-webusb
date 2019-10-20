@@ -15,7 +15,7 @@ Upgrade the micro:bit firmware as describe at: [Updating your micro:bit firmware
 ## Program the Micro:bit from Shared Project
 
 1. Plug the Micro:bit into the computer
-2. Open [https://makecode.microbit.org/_20p49eD2uRiP](https://makecode.microbit.org/_20p49eD2uRiP)
+2. Open [https://makecode.microbit.org/_1kdf356Xgdaz](https://makecode.microbit.org/_1kdf356Xgdaz)
 3. Select the Gear Menu in the upper right
 4. Select the `Pair Device` option
 5. Select `Pair Device`
@@ -37,10 +37,16 @@ The program below will send serial data and can be used for initial testing/debu
 4. Paste in the code above
             ```javascript
             basic.forever(function () {
-                serial.writeLine("message")
                 serial.writeValue("x", Math.map(Math.randomRange(0, 100), 0, 100, -2.4, 18.2))
-                serial.writeValue("y", Math.randomRange(0, 10))
-                basic.pause(500)
+                serial.writeValue("y data", Math.randomRange(0, 10))
+                serial.writeValue("graph2.a", Math.randomRange(-5, 10))
+                serial.writeValue("graph2.b data", Math.randomRange(-5, 10))
+                if (Math.randomRange(0, 10) == 5) {
+                    serial.writeString("x:\"Hi\"")
+                }
+                if (Math.randomRange(0, 50) == 5) {
+                    serial.writeString("console log")
+                }
             })
             ```
 5. Select the Gear Menu in the upper right
@@ -59,13 +65,68 @@ The program below will send serial data and can be used for initial testing/debu
 ## Open the project's page
 
 1. Open browser to [http://localhost:8000/page.html](http://localhost:8000/page.html) (Default page for Python Server)
-2. Click on "go"
-
-
-
-
+2. Make sure the micro:bit is connected via the USB cable
+3. Click on `Connect`
+4. Select the micro:bit from the pop-up menu that appears
 
 # API
+
+
+## Graph Message Types and Formats
+
+Data may be shown in a combination of zero or more graphs that show a single series and zero or more graphs that show multiple series. There may also be "events" (descriptive items with a string)
+
+The number of graphs and series will now be known in advance.  It must be determined from the streaming data.
+
+## Values for a graph with a single series
+
+Format: `NAME:NUMBER`
+* `NAME` is a string name of the graph (and the name of the series)
+* `NUMBER` is a numeric value to graph
+  
+Format: `NAME:STRING`
+* `NAME` is a string name of the graph
+* `String` is a string for an event
+
+## Values for a graph with multiple series
+
+Format: `NAME.SERIES:NUMBER`
+* `NAME` is a string name of the graph (and the name of the series)
+* `SERIES` is a string name of the series for the data
+* `NUMBER` is a numeric value to graph
+  
+Format: `NAME.SERIES:STRING`
+* `NAME` is a string name of the graph
+* `SERIES` is a string name of the series for the data
+* `String` is a string for an event
+
+## Console messages
+
+Any message that doesn't start with a key should be treated as a console message and logged to a window. Ex: `This is a message`
+
+# USB & Console Data
+
+The micro:bit console messages (`serial write` blocks and `serial.*` TypeScript commands) are directed over the USB interface.  They actually go through ARM's [CMSIS-DAP](https://arm-software.github.io/CMSIS_5/DAP/html/index.html). DAP is described as:
+> CMSIS-DAP is a specification and a implementation of a Firmware that supports access to the CoreSight Debug Access Port (DAP).
+
+DAP has several [well defined commands](https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__Commands__gr.html) as well as the ability to support custom vendor commands.  Messages begin with a byte indicating the command type.  The firmware in the micro:bit supports two custom messages that are used to configure the baud rate ()
+
+## USB Configuration Sequence
+
+
+
+
+# DAP UART Packets
+
+Being read from `ID_DAP_Vendor3`.  Based on [https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c](https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c)
+
+Packed format: 
+1. First byte is echo back of command (i.e., `0x83` or `131` decimal)
+2. Second Byte is length of message, `len`
+3. Bytes [2..2+len) are the actual bytes of the messages
+
+Misc: Lines are delimited by newline character (`\n`)
+
 
 # Credits
 
@@ -238,16 +299,6 @@ DAP_Transfer
 DAP Link Vendo Stuff : [https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__Info.html](https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__Info.html)
 
 
-# DAP UART Packets
-
-Being read from `ID_DAP_Vendor3`.  Based on [https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c](https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c)
-
-Packed format: 
-1. First byte is echo back of command (i.e., `131` decimal)
-2. Second Byte is length of message, `len`
-3. Bytes [2..2+len) are the actual bytes of the messages
-
-Misc: Lines are delimited by newline character (`\n`)
 
 
 # USB Misc
@@ -257,30 +308,3 @@ Misc: Lines are delimited by newline character (`\n`)
 [http://markdingst.blogspot.com/2014/06/implementing-usb-communication-device.html](http://markdingst.blogspot.com/2014/06/implementing-usb-communication-device.html)
 
 
-# Graph Message Types and Formats
-
-Data may be shown in a combination of zero or more graphs that show a single series and zero or more graphs that show multiple series. There may also be "events" (descriptive items with a string)
-
-The number of graphs and series will now be known in advance.  It must be determined from the streaming data.
-
-## Values for a graph with a single series
-
-Format: `NAME:NUMBER`
-* `NAME` is a string name of the graph (and the name of the series)
-* `NUMBER` is a numeric value to graph
-  
-Format: `NAME:STRING`
-* `NAME` is a string name of the graph
-* `String` is a string for an event
-
-## Values for a graph with multiple series
-
-Format: `NAME.SERIES:NUMBER`
-* `NAME` is a string name of the graph (and the name of the series)
-* `SERIES` is a string name of the series for the data
-* `NUMBER` is a numeric value to graph
-  
-Format: `NAME.SERIES:STRING`
-* `NAME` is a string name of the graph
-* `SERIES` is a string name of the series for the data
-* `String` is a string for an event
