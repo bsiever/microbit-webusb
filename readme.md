@@ -317,3 +317,6 @@ DAP Link Vendo Stuff : [https://arm-software.github.io/CMSIS_5/DAP/html/group__D
 3. Project Page / Repos
 4. Clean up Docs
 5. Parsing
+   Single call-back with type-tag/data  All have time-stamp (connect, disconnect, connectionFailure, console, graph-data(graph, series, data), graph-event(graph, series, event string))
+6. Send-data
+
