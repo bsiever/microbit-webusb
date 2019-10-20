@@ -1,5 +1,5 @@
 
-/**
+/*
  * JavaScript functions for interacting with micro:bit microcontrollers over WebUSB
  * (Only works in Chrome browsers;  Pages must be either HTTPS or local)
  */
@@ -129,15 +129,22 @@ function uBitSend(device, data) {
     device.controlTransferOut(DAPOutReportRequest, message) // DAP ID_DAP_Vendor3: https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c
 }
 
-// Callback reasons
-//   "connection failure", "connected", "disconnected", "error"
-//   "console", "graph-data", "graph-event"
+
+/**
+ * Callback for micro:bit events
+ * 
+ * @callback uBitEventCallback
+ * @param {string} event ("connection failure", "connected", "disconnected", "error", "console", "graph-data", "graph-event" )
+ * @param {USBDevice} device triggering the callback
+ * @param {*} data (event-specific data object)
+ *  
+ */
 
 
 /**
  * Allow users to select a device to connect to.
  * 
- * @param {function(reason string, USBDevice, data)} callback function for device events
+ * @param {uBitEventCallback} callback function for device events
  * 
  * The reason string can be:
  *  "connection failure":  User didn't select a valid device (device and data are null) 
