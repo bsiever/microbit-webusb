@@ -66,7 +66,7 @@ function uBitOpenDevice(device, callback) {
             // Data: Process and get more
             var len = arr[1]  // Second byte is length of remaining message
             if(len==0) // If no data: delay
-                return Promise.delay(20).then(transferLoop)
+                return Promise.delay(100).then(transferLoop)
             
             var msg = arr.slice(2,2+len)
             let string =  decoder.decode(msg);
