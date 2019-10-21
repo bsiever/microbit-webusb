@@ -39,6 +39,9 @@ Promise.delay = function(duration){
     });
 }
 
+const uBitBadMessageDelay = 500
+const uBitIncompleteMessageDelay = 150
+const uBitGoodMessageDelay = 20 // Time to try again
 /*
    Open and configure a selected device and then start the read-loop
  */
@@ -56,18 +59,18 @@ function uBitOpenDevice(device, callback) {
         .then(() => device.controlTransferIn(DAPInReportRequest, 64))
         .then((data) => { 
             if (data.status != "ok") {
-                return Promise.delay(500).then(transferLoop);
+                return Promise.delay(uBitBadMessageDelay).then(transferLoop);
             }
             // First byte is echo of get UART command
 
             let arr = new Uint8Array(data.data.buffer)
             if(arr.length<2)  // Not a valid array: Delay
-                return Promise.delay(100).then(transferLoop)
+                return Promise.delay(uBitIncompleteMessageDelay).then(transferLoop)
 
             // Data: Process and get more
             let len = arr[1]  // Second byte is length of remaining message
             if(len==0) // If no data: delay
-                return Promise.delay(100).then(transferLoop)
+                return Promise.delay(uBitIncompleteMessageDelay).then(transferLoop)
             
             let msg = arr.slice(2,2+len)
             let string =  decoder.decode(msg);
@@ -107,7 +110,7 @@ function uBitOpenDevice(device, callback) {
                 firstNewline = buffer.indexOf("\n")
             }
             // Delay long enough for complete message
-            return Promise.delay(5).then(transferLoop);
+            return Promise.delay(uBitGoodMessageDelay).then(transferLoop);
         })
         // Error here probably means micro:bit disconnected
         .catch(error => { if(device.opened) callback("error", device, null); device.close(); callback("disconnected", device, null);});
