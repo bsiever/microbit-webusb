@@ -13,6 +13,11 @@ const controlTransferSetReport = 0x09
 const controlTransferOutReport = 0x200
 const controlTransferInReport = 0x100
 
+const uBitBadMessageDelay = 500         // Delay if message failed
+const uBitIncompleteMessageDelay = 150  // Delay if no message ready now
+const uBitGoodMessageDelay = 20         // Time to try again if message was good
+
+
 const DAPOutReportRequest = {
     requestType: "class",
     recipient: "interface",
@@ -39,9 +44,6 @@ Promise.delay = function(duration){
     });
 }
 
-const uBitBadMessageDelay = 500
-const uBitIncompleteMessageDelay = 150
-const uBitGoodMessageDelay = 20 // Time to try again
 /*
    Open and configure a selected device and then start the read-loop
  */
