@@ -3,7 +3,7 @@
 
 1. Upgrade Micro:bit to latest firmware
 2. Program the Micro:bit with one of the example programs that generates serial data
-3. Setup a Web Server & Open the project's page
+3. Setup a Web Server & Open the project's page to run the sample application ([`index.html`](./index.html))
 
 ## Upgrade Micro:bit to latest firmware
 
