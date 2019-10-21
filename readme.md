@@ -7,7 +7,8 @@ This provides an API for interacting with the micro:bit over USB.  It also inclu
 
 * `ubitwebusb.js`: The actual API (the only file needed for other applications)
 * Demo application (a web-based console that shows the different messages)
-  * `index.html`:  HTML with in-line JavaScript for the application
+  * [`index.html`](https://github.com/bsiever/microbit-webusb/blob/master/index.html):  HTML with in-line JavaScript for the application
+    * [View Live Version](https://bsiever.github.io/microbit-webusb/)
   * `style.css`
   * Requires `ubitwebusb.js`
 * Documentation files
