@@ -1,9 +1,26 @@
 
+# Overview
+
+This provides an API for interacting with the micro:bit over USB.  It also includes a demo application to show how it works.
+
+# Files / Manifest
+
+* `ubitwebusb.js`: The actual API (the only file needed for other applications)
+* Demo application (a web-based console that shows the different messages)
+  * `index.html`:  HTML with in-line JavaScript for the application
+  * `style.css`
+  * Requires `ubitwebusb.js`
+* Documentation files
+  * [`readme.md`](https://github.com/bsiever/microbit-webusb/blob/master/readme.md): Overview of project
+  * [`docs`](https://bsiever.github.io/microbit-webusb/docs/): Directory including JSDoc documentation
+    * `jsdoc.md`: Initial page / readme for JSDocs
+  * `_config.yml`: GitHub pages config
+
 # Overall Setup
 
 1. Upgrade Micro:bit to latest firmware
 2. Program the Micro:bit with one of the example programs that generates serial data
-3. Setup a Web Server & Open the project's page to run the sample application ([`index.html`](./index.html))
+3. Setup a Web Server & Open the project's page to run the sample application ([`index.html`](./index.html)) ([Live Example of it](https://github.com/bsiever/microbit-webusb))
 
 ## Upgrade Micro:bit to latest firmware
 
@@ -267,12 +284,7 @@ Based on [https://www.umpah.net/how-to-sniff-usb-traffic-reverse-engineer-usb-de
 
 # TODOs
 
-1. Project Page / Repos
-2. GitHub page
-   1. Live page
-   2. Read Me
-   3. Docs
-3. Project organization / page
+1. Project organization / page
    1. Charting libraries
    2. Blurb
    3. Example experiment / teacher & student docs
