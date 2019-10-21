@@ -48,20 +48,26 @@
             case "connected":
                 consolePrintln("<b>Connected!</b>")
                 connectedDevices.push(device)
-                break;
+                break
             case "disconnected":
                 consolePrintln("<b>Disconnected</b>")
                 connectedDevices = connectedDevices.filter( v => v != device)
-                break;
+                break
             case "connection failure":
                 consolePrintln("<b>Connection Failure</b>")
-                break;
+                break
             case "error":
                 consolePrintln("<b>Error</b>")                
-                break;
-            case "data":
-                consolePrintln("Data: " + data)
-                break;
+                break
+            case "console":
+                consolePrintln("Console Data: " + data.data)
+                break
+            case "graph-event":
+                consolePrintln(`Graph Event:  ${data.data} (for ${data.graph}/${data.series})`)
+                break
+            case "graph-data":
+                consolePrintln(`Graph Data: ${data.data} (for ${data.graph}/${data.series})`)
+                break
         }
     }
 

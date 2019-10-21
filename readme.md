@@ -86,7 +86,11 @@ There are three main functions:
 
 [JSDocs Here]()
 
-# Technical Details
+## Example
+
+See [`index.html`](./index.html) for a complete example application.
+
+# Technical Details and Notes
 
 ## Communication and App Message Formats
 
@@ -253,13 +257,19 @@ Based on [https://www.umpah.net/how-to-sniff-usb-traffic-reverse-engineer-usb-de
 
 # TODOs
 
-1. Charting libraries
-2. Blurb
-3. Project Page / Repos
-4. Link to Docs
-5. Parsing
-   Single call-back with type-tag/data  All have time-stamp (connect, disconnect, connectionFailure, console, graph-data(graph, series, data), graph-event(graph, series, event string));  Include device / multi-device
-6. GitHub page
+1. Project Page / Repos
+2. Link to Docs
+3. Parsing
+   * Single call-back with type-tag/data  All have time-stamp (connect, disconnect, connectionFailure, console, graph-data(graph, series, data), graph-event(graph, series, event string));  Include device / multi-device
+   * Update Docs to include details
+4. GitHub page
+   1. Live page
+   2. Read Me
+   3. Docs
+5. Project organization / page
+   1. Charting libraries
+   2. Blurb
+   3. Example experiment / teacher & student docs
 
 # To Re-generate API Docs
 

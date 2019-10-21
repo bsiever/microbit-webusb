@@ -6,12 +6,12 @@
 
 const MICROBIT_VENDOR_ID = 0x0d28
 const MICROBIT_PRODUCT_ID = 0x0204
-const MICROBIT_DAP_INTERFACE = 4;
+const MICROBIT_DAP_INTERFACE = 4
 
-const controlTransferGetReport = 0x01;
-const controlTransferSetReport = 0x09;
-const controlTransferOutReport = 0x200;
-const controlTransferInReport = 0x100;
+const controlTransferGetReport = 0x01
+const controlTransferSetReport = 0x09
+const controlTransferOutReport = 0x200
+const controlTransferInReport = 0x100
 
 const DAPOutReportRequest = {
     requestType: "class",
@@ -47,10 +47,11 @@ function uBitOpenDevice(device, callback) {
         return () => { return device.controlTransferOut(DAPOutReportRequest, data) }
     }
 
-    var buffer=""
-    var decoder = new TextDecoder("utf-8");
+    let buffer=""
+    let decoder = new TextDecoder("utf-8")
+    const parser = /([^.:]*)\.*([^:]+|):(.*)/
 
-    var transferLoop = function () {
+    let transferLoop = function () {
         device.controlTransferOut(DAPOutReportRequest, Uint8Array.from([0x83])) // DAP ID_DAP_Vendor3: https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c
         .then(() => device.controlTransferIn(DAPInReportRequest, 64))
         .then((data) => { 
@@ -64,20 +65,43 @@ function uBitOpenDevice(device, callback) {
                 return Promise.delay(100).then(transferLoop)
 
             // Data: Process and get more
-            var len = arr[1]  // Second byte is length of remaining message
+            let len = arr[1]  // Second byte is length of remaining message
             if(len==0) // If no data: delay
                 return Promise.delay(100).then(transferLoop)
             
-            var msg = arr.slice(2,2+len)
+            let msg = arr.slice(2,2+len)
             let string =  decoder.decode(msg);
             buffer += string;
-            var firstNewline = buffer.indexOf("\n")
+            let firstNewline = buffer.indexOf("\n")
             while(firstNewline>=0) {
-                var messageToNewline = buffer.slice(0,firstNewline)
-
+                let messageToNewline = buffer.slice(0,firstNewline)
+                let now = new Date() 
                 // Deal with line
-                // TODO: Parse data and add in time stamp
-                callback("data", device, messageToNewline)
+                // If it's a graph/series format, break it into parts
+                let parseResult = parser.exec(messageToNewline)
+                if(parseResult) {
+                    let graph = parseResult[1]
+                    let series = parseResult[2]
+                    let data = parseResult[3]
+                    let callbackType = "graph-event"
+                    // If data is numeric, it's a data message and should be sent as numbers
+                    if(!isNaN(data)) {
+                        callbackType = "graph-data"
+                        data = parseFloat(data)
+                    }
+                    // Build and send the bundle
+                    let dataBundle = {
+                        time: now,
+                        graph: graph, 
+                        series: series, 
+                        data: data
+                    }
+                    callback(callbackType, device, dataBundle)
+                } else {
+                    // Not a graph format.  Send it as a console bundle
+                    let dataBundle = {time: now, data: messageToNewline}
+                    callback("console", device, dataBundle)
+                }
 
                 buffer = buffer.slice(firstNewline+1)
                 firstNewline = buffer.indexOf("\n")
@@ -98,7 +122,7 @@ function uBitOpenDevice(device, callback) {
         .then(controlTransferOutFN(Uint8Array.from([0x82, 0x00, 0xc2, 0x01, 0x00]))) // Vendor Specific command 2 (ID_DAP_Vendor2): https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c ;  0x0001c200 = 115,200kBps
         .then( () => { callback("connected", device, null); return Promise.resolve()}) 
         .then(transferLoop)
-        .catch(error => callback("error", device, error));
+        .catch(error => callback("error", device, error))
 }
 
 /**
@@ -121,7 +145,7 @@ function uBitSend(device, data) {
         return
     // Need to send 0x84 (command), length (including newline), data's characters, newline
     let fullLine = data+'\n'
-    let encoded = new TextEncoder("utf-8").encode(fullLine);
+    let encoded = new TextEncoder("utf-8").encode(fullLine)
     let message = new Uint8Array(1+1+fullLine.length)
     message[0] = 0x84
     message[1] = encoded.length
