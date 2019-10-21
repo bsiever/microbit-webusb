@@ -106,7 +106,7 @@ There are three main functions:
 
 ## JSDocs: Documentation on the functions
 
-[JSDocs Here]([./docs/index.html](https://bsiever.github.io/microbit-webusb/docs/index.html))
+[JSDocs Here](https://bsiever.github.io/microbit-webusb/docs/index.html)
 
 ## Example
 
