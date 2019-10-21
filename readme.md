@@ -40,7 +40,8 @@ Upgrade the micro:bit firmware as describe at: [Updating your micro:bit firmware
 5. Select `Pair Device`
 6. Select the Micro:bit device
 7. Download the code (Blue Download button at the bottom of the window)
-8. Unplug/re-plug Micro:bit (to Un-Pair device)
+8. See what data looks like with Makecode's existing graphs via the `Console Simulator` or `Console Device` buttons in the simulator.
+9. Unplug/re-plug Micro:bit (to Un-Pair device)
 
 The micro:bit retains it's program until it is explicitly re-programmed or the firmware is upgraded. This programming process won't need to be repeated unless a different program is desired (which may be needed to demonstrate different the different ways to annotate graphs)
 
@@ -77,7 +78,8 @@ basic.forever(function () {
 7. Select `Pair Device`
 8. Select the Micro:bit device
 9. Download the code (Blue Download button at the bottom of the window)
-10. Unplug/re-plug Micro:bit (to Un-Pair device)
+10. See what data looks like with Makecode's existing graphs via the `Console Simulator` or `Console Device` buttons in the simulator.
+11. Unplug/re-plug Micro:bit (to Un-Pair device)
 
 # Setup a Web Server
 
@@ -283,13 +285,6 @@ Based on [https://www.umpah.net/how-to-sniff-usb-traffic-reverse-engineer-usb-de
 14. [4, 0, 80, 0, 0, 0] // DAP_TransferConfigure 
 15. [19, 0] // DAP_SWD_Configure default
 16. [18, 56, 255, 255, 255, 255, 255, 255, 255]  // DAP_SWJ_Sequence
-
-# TODOs
-
-1. Project organization / page
-   1. Charting libraries
-   2. Blurb
-   3. Example experiment / teacher & student docs
 
 # To Re-generate API Docs
 
