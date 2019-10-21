@@ -49,22 +49,18 @@ const DAPInReportRequest =  {
    Open and configure a selected device and then start the read-loop
  */
 function uBitOpenDevice(device, callback) {
-    function controlTransferOutFN(data) {
-        return () => { return device.controlTransferOut(DAPOutReportRequest, data) }
-    }
-
-    let buffer=""
-    let decoder = new TextDecoder("utf-8")
-    const parser = /([^.:]*)\.*([^:]+|):(.*)/
+    let buffer=""                               // Buffer of accumulated messages
+    let decoder = new TextDecoder("utf-8")      // Decoder for byte->utf conversion
+    const parser = /([^.:]*)\.*([^:]+|):(.*)/   // Parser to identify time-series format (graph:info or graph.series:info)
 
     let transferLoop = function () {
         device.controlTransferOut(DAPOutReportRequest, Uint8Array.from([0x83])) // DAP ID_DAP_Vendor3: https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c
-        .then(() => device.controlTransferIn(DAPInReportRequest, 64))
-        .then((data) => { 
+          .then(() => device.controlTransferIn(DAPInReportRequest, 64))
+          .then((data) => { 
             if (data.status != "ok") {
                 return Promise.delay(uBitBadMessageDelay).then(transferLoop);
             }
-            // First byte is echo of get UART command
+            // First byte is echo of get UART command: Ignore it
 
             let arr = new Uint8Array(data.data.buffer)
             if(arr.length<2)  // Not a valid array: Delay
@@ -72,10 +68,10 @@ function uBitOpenDevice(device, callback) {
 
             // Data: Process and get more
             let len = arr[1]  // Second byte is length of remaining message
-            if(len==0) // If no data: delay
+            if(len==0) // If no data: Delay
                 return Promise.delay(uBitIncompleteMessageDelay).then(transferLoop)
             
-            let msg = arr.slice(2,2+len)
+            let msg = arr.slice(2,2+len)  // Get the actual UART bytes
             let string =  decoder.decode(msg);
             buffer += string;
             let firstNewline = buffer.indexOf("\n")
@@ -109,8 +105,8 @@ function uBitOpenDevice(device, callback) {
                     callback("console", device, dataBundle)
                 }
 
-                buffer = buffer.slice(firstNewline+1)
-                firstNewline = buffer.indexOf("\n")
+                buffer = buffer.slice(firstNewline+1)  // Advance to after newline
+                firstNewline = buffer.indexOf("\n")    // See if there's more data
             }
             // Delay long enough for complete message
             return Promise.delay(uBitGoodMessageDelay).then(transferLoop);
@@ -120,12 +116,12 @@ function uBitOpenDevice(device, callback) {
     }
 
     device.open()
-        .then(() => device.selectConfiguration(1))
-        .then(() => device.claimInterface(4))
-        .then(controlTransferOutFN(Uint8Array.from([0x82, 0x00, 0xc2, 0x01, 0x00]))) // Vendor Specific command 2 (ID_DAP_Vendor2): https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c ;  0x0001c200 = 115,200kBps
-        .then( () => { callback("connected", device, null); return Promise.resolve()}) 
-        .then(transferLoop)
-        .catch(error => callback("error", device, error))
+          .then(() => device.selectConfiguration(1))
+          .then(() => device.claimInterface(4))
+          .then(() => device.controlTransferIn(DAPInReportRequest,Uint8Array.from([0x82, 0x00, 0xc2, 0x01, 0x00]))) // Vendor Specific command 2 (ID_DAP_Vendor2): https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c ;  0x0001c200 = 115,200kBps
+          .then(() => { callback("connected", device, null); return Promise.resolve()}) 
+          .then(transferLoop)
+          .catch(error => callback("error", device, error))
 }
 
 /**
