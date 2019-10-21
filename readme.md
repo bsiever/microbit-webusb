@@ -16,6 +16,7 @@ This provides an API for interacting with the micro:bit over USB.  It also inclu
   * [`docs`](https://bsiever.github.io/microbit-webusb/docs/): Directory including JSDoc documentation
     * `jsdoc.md`: Initial page / readme for JSDocs
   * `_config.yml`: GitHub pages config
+  * [`LICENSE`](./LICENSE): MIT License
 
 # Overall Setup
 
