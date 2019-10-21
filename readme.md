@@ -78,13 +78,14 @@ basic.forever(function () {
 ## Summary
 
 There are three main functions:
-1. `uBitConnectDevice(callback)`:  Prompt user to connect to device and provide callback function for device events
-2. `uBitSend(device)`: Send data (a `string`) to a micro:bit
-3. `uBitDisconnect(device)`: Disconnect from the designated `micro:bit`
+1. [`uBitConnectDevice(callback)`](https://bsiever.github.io/microbit-webusb/docs/global.html#uBitConnectDevice):  Prompt user to connect to device and provide callback function for device events
+   * See [`uBitEventCallback`]([./global.html#uBitEventCallback](https://bsiever.github.io/microbit-webusb/docs/global.html#uBitEventCallback)) for callback format and argument descriptions.
+2. [`uBitSend(device)`](https://bsiever.github.io/microbit-webusb/docs/global.html#uBitSend): Send data (a `string`) to a micro:bit
+3. [`uBitDisconnect(device)`](https://bsiever.github.io/microbit-webusb/docs/global.html#uBitDisconnect): Disconnect from the designated `micro:bit`
 
-## JSDocs
+## JSDocs: Documentation on the functions
 
-[JSDocs Here](./docs/index.html)
+[JSDocs Here]([./docs/index.html](https://bsiever.github.io/microbit-webusb/docs/index.html))
 
 ## Example
 
