@@ -35,26 +35,24 @@ The program below will send serial data and can be used for initial testing/debu
 2. Open the [MakeCode Editor](https://makecode.microbit.org/#editor)
 3. Select JavaScript from the Blocks/JavaScript slider.
 4. Paste in the code above
-
-            ```javascript
-            serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-                serial.writeLine("echo " + serial.readUntil(serial.delimiters(Delimiters.NewLine)))
-            })
-            basic.forever(function () {
-                serial.writeValue("x", Math.map(Math.randomRange(0, 100), 0, 100, -2.4, 18.2))
-                serial.writeValue("y data", Math.randomRange(0, 10))
-                serial.writeValue("graph2.a", Math.randomRange(-5, 10))
-                serial.writeValue("graph2.b data", Math.randomRange(-5, 10))
-                if (Math.randomRange(0, 10) == 5) {
-                    serial.writeLine("x:\"Hi\"")
-                }
-                if (Math.randomRange(0, 50) == 5) {
-                    serial.writeLine("console log")
-                }
-                basic.pause(500)
-            })
-            ```
-
+```javascript
+serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+    serial.writeLine("echo " + serial.readUntil(serial.delimiters(Delimiters.NewLine)))
+})
+basic.forever(function () {
+    serial.writeValue("x", Math.map(Math.randomRange(0, 100), 0, 100, -2.4, 18.2))
+    serial.writeValue("y data", Math.randomRange(0, 10))
+    serial.writeValue("graph2.a", Math.randomRange(-5, 10))
+    serial.writeValue("graph2.b data", Math.randomRange(-5, 10))
+    if (Math.randomRange(0, 10) == 5) {
+        serial.writeLine("x:\"Hi\"")
+    }
+    if (Math.randomRange(0, 50) == 5) {
+        serial.writeLine("console log")
+    }
+    basic.pause(500)
+})
+```
 5. Select the Gear Menu in the upper right
 6. Select the `Pair Device` option
 7. Select `Pair Device`
