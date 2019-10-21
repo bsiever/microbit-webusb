@@ -63,10 +63,10 @@
                 consolePrintln("Console Data: " + data.data)
                 break
             case "graph-event":
-                consolePrintln(`Graph Event:  ${data.data} (for ${data.graph}/${data.series})`)
+                consolePrintln(`Graph Event:  ${data.data} (for ${data.graph}${data.series.length?" / series "+data.series:""})`)
                 break
             case "graph-data":
-                consolePrintln(`Graph Data: ${data.data} (for ${data.graph}/${data.series})`)
+                consolePrintln(`Graph Data: ${data.data} (for ${data.graph}${data.series.length?" / series "+data.series:""})`)
                 break
         }
     }

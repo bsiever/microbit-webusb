@@ -35,6 +35,7 @@ The program below will send serial data and can be used for initial testing/debu
 2. Open the [MakeCode Editor](https://makecode.microbit.org/#editor)
 3. Select JavaScript from the Blocks/JavaScript slider.
 4. Paste in the code above
+
             ```javascript
 serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
     serial.writeLine("echo " + serial.readUntil(serial.delimiters(Delimiters.NewLine)))
@@ -53,6 +54,7 @@ basic.forever(function () {
     basic.pause(500)
 })
             ```
+
 5. Select the Gear Menu in the upper right
 6. Select the `Pair Device` option
 7. Select `Pair Device`
@@ -84,7 +86,7 @@ There are three main functions:
 
 ## JSDocs
 
-[JSDocs Here]()
+[JSDocs Here](./docs/index.html)
 
 ## Example
 
@@ -139,13 +141,22 @@ Immediately after connection to micro:bit (this assumes the connected device is 
 
 1. Select device configuration 1
 2. Claim interface 4 (CMSIS-DAP)
+3. Control Transfer Out [DAP Vendor Specific Command (`ID_DAP_Vendor2` or `0x82`)](https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c) to set the UART baud to 115,200bps
+   * Bytes: `[[0x82, 0x00, 0xc2, 0x01, 0x00]`
+
+### Old version (not necessary)
+
+This approach was based on the sequence sent from Makecode, but it doesn't appear that the majority of it is necessary. 
+
+1. Select device configuration 1
+2. Claim interface 4 (CMSIS-DAP)
 3. Control Transfer Out [`DAP_Connect`](https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__Connect.html) to default (connect the default device)
    * Bytes: `[2, 0]`
 4. Control Transfer Out [`DAP_SWJ_Clock`](https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__SWJ__Clock.html) to 10MHz
    * Bytes: `[0x11, 0x80, 0x96, 0x98, 0]`
 5. Control Transfer Out [`DAP_SWD_Configure`](https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__SWD__Configure.html) to configure the software debug (1 clock turn around, no Wait/Fault phases)
    * Bytes: `[0x13, 0]]`
-6. Control Transfer Out [DAP Vendor Specific Command (`ID_DAP_Vendor2` or `0x82`)](https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c) to set the UART baud to 115,200bps
+3. Control Transfer Out [DAP Vendor Specific Command (`ID_DAP_Vendor2` or `0x82`)](https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c) to set the UART baud to 115,200bps
    * Bytes: `[[0x82, 0x00, 0xc2, 0x01, 0x00]`
 
 ## Micro:bit USB UART Data Read
@@ -258,19 +269,15 @@ Based on [https://www.umpah.net/how-to-sniff-usb-traffic-reverse-engineer-usb-de
 # TODOs
 
 1. Project Page / Repos
-2. Link to Docs
-3. Parsing
-   * Single call-back with type-tag/data  All have time-stamp (connect, disconnect, connectionFailure, console, graph-data(graph, series, data), graph-event(graph, series, event string));  Include device / multi-device
-   * Update Docs to include details
-4. GitHub page
+2. GitHub page
    1. Live page
    2. Read Me
    3. Docs
-5. Project organization / page
+3. Project organization / page
    1. Charting libraries
    2. Blurb
    3. Example experiment / teacher & student docs
 
 # To Re-generate API Docs
 
-`jsdoc ubitwebusb.js jsdoc.md`
+`jsdoc ubitwebusb.js -r jsdoc.md -d docs`

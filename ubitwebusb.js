@@ -4,6 +4,16 @@
  * (Only works in Chrome browsers;  Pages must be either HTTPS or local)
  */
 
+// Add a delay() method to promises 
+// NOTE: I found this on-line somewhere but didn't note the source and haven't been able to find it!
+Promise.delay = function(duration){
+    return new Promise(function(resolve, reject){
+        setTimeout(function(){
+            resolve();
+        }, duration)
+    });
+}
+
 const MICROBIT_VENDOR_ID = 0x0d28
 const MICROBIT_PRODUCT_ID = 0x0204
 const MICROBIT_DAP_INTERFACE = 4
@@ -34,15 +44,6 @@ const DAPInReportRequest =  {
     index: MICROBIT_DAP_INTERFACE
 }
 
-// Add a delay() method to promises 
-// NOTE: I found this on-line somewhere but didn't note the source and haven't been able to find it!
-Promise.delay = function(duration){
-    return new Promise(function(resolve, reject){
-        setTimeout(function(){
-            resolve();
-        }, duration)
-    });
-}
 
 /*
    Open and configure a selected device and then start the read-loop
@@ -115,7 +116,7 @@ function uBitOpenDevice(device, callback) {
             return Promise.delay(uBitGoodMessageDelay).then(transferLoop);
         })
         // Error here probably means micro:bit disconnected
-        .catch(error => { if(device.opened) callback("error", device, null); device.close(); callback("disconnected", device, null);});
+        .catch(error => { if(device.opened) callback("error", device, error); device.close(); callback("disconnected", device, null);});
     }
 
     device.open()
@@ -159,11 +160,23 @@ function uBitSend(device, data) {
 /**
  * Callback for micro:bit events
  * 
+ 
+   Event data varies based on the event string:
+  <ul>
+   <li>"connection failure": null</li>
+   <li>"connected": null</li>
+   <li>"disconnected": null</li>
+   <li>"error": error object</li>
+   <li>"console":  { "time":Date object "data":string}</li>
+   <li>"graph-data": { "time":Date object "graph":string "series":string "data":number}</li>
+   <li>"graph-event": { "time":Date object "graph":string "series":string "data":string}</li>
+  </ul>
+
  * @callback uBitEventCallback
  * @param {string} event ("connection failure", "connected", "disconnected", "error", "console", "graph-data", "graph-event" )
  * @param {USBDevice} device triggering the callback
- * @param {*} data (event-specific data object)
- *  
+ * @param {*} data (event-specific data object). See list above for variants
+ * 
  */
 
 
@@ -171,11 +184,6 @@ function uBitSend(device, data) {
  * Allow users to select a device to connect to.
  * 
  * @param {uBitEventCallback} callback function for device events
- * 
- * The reason string can be:
- *  "connection failure":  User didn't select a valid device (device and data are null) 
- *  "connected": device is the newly connected device, data is null
- *  "disconnected", "error"
  */
 function uBitConnectDevice(callback) { 
     navigator.usb.requestDevice({filters: [{ vendorId: MICROBIT_VENDOR_ID, productId: 0x0204 }]})
