@@ -68,7 +68,7 @@ basic.forever(function () {
 
 ## Open the project's page
 
-1. Open browser to [http://localhost:8000/page.html](http://localhost:8000/page.html) (Default page for Python Server)
+1. Open browser to [http://localhost:8000/](http://localhost:8000/) (Default page for Python Server)
 2. Make sure the micro:bit is connected via the USB cable
 3. Click on `Connect`
 4. Select the micro:bit from the pop-up menu that appears
@@ -124,7 +124,7 @@ Format: `NAME.SERIES:STRING`
 
 ### Console messages
 
-Any message that doesn't start with a key should be treated as a console message and logged to a window. Ex: `This is a message`
+Any message that doesn't include a colon is a console message. Console messages should end with a newline (`\n`), which will be sent implicitly with `serial write line` (*not* `serial write`). Ex: `This is a message` sent via `serial write line`.
 
 ## Micro:bit USB & Console Data
 
@@ -177,7 +177,7 @@ This can be done to identify all the messages being sent to a USB device from a 
 1. Open the page in question
 2. Open the JavaScript console (Inspect the page via developer tools;  Right-click on page and select Insepct)
 3. Paste in the following code, which adds a debugging print message to all calls to most USB functions
-            ```javascript
+```javascript
 var trackerLogOn = true;
 
 function addTracker(methodName, object) {
@@ -202,7 +202,7 @@ addTracker("transferOut", USBDevice.prototype)
 addTracker("selectConfiguration", USBDevice.prototype)
 addTracker("isochronousTransferIn", USBDevice.prototype)
 addTracker("isochronousTransferOut", USBDevice.prototype)
-            ```
+```
 4. Use the page to trigger USB operations
 5. Enter `trackerLogOn = false` in the Console to stop collecting data, then scroll back and examine all messages/traffic.
 
@@ -219,7 +219,7 @@ Based on [https://www.umpah.net/how-to-sniff-usb-traffic-reverse-engineer-usb-de
 ## Misc: App Notes / Docs on USB, WebUSB, etc.
 
 * [USB Made Simple](http://www.usbmadesimple.co.uk/): Sections on [Introduction](http://www.usbmadesimple.co.uk/ums_1.htm), [Data Flow](http://www.usbmadesimple.co.uk/ums_3.htm) and [Protocol](http://www.usbmadesimple.co.uk/ums_4.htm) are helpful.
-* [Makecode/pxt's webusb source](https://github.com/microsoft/pxt/blob/83dcac3c75b8681cd2451919840a297d7e0b3c20/pxtlib/webusb.ts)
+* [Makecode/pxt's webusb.ts source](https://github.com/microsoft/pxt/blob/83dcac3c75b8681cd2451919840a297d7e0b3c20/pxtlib/webusb.ts)
 
 
 ## Misc: USB Enumeration for Micro:Bit and communication details
