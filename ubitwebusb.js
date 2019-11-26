@@ -115,10 +115,17 @@ function uBitOpenDevice(device, callback) {
         .catch(error => { if(device.opened) callback("error", device, error); device.close(); callback("disconnected", device, null);});
     }
 
+    function controlTransferOutFN(data) {
+        return () => { return device.controlTransferOut(DAPOutReportRequest, data) }
+    }
+    
     device.open()
           .then(() => device.selectConfiguration(1))
           .then(() => device.claimInterface(4))
-          .then(() => device.controlTransferIn(DAPInReportRequest,Uint8Array.from([0x82, 0x00, 0xc2, 0x01, 0x00]))) // Vendor Specific command 2 (ID_DAP_Vendor2): https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c ;  0x0001c200 = 115,200kBps
+          .then(controlTransferOutFN(Uint8Array.from([2, 0])))  // Connect in default mode: https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__Connect.html
+          .then(controlTransferOutFN(Uint8Array.from([0x11, 0x80, 0x96, 0x98, 0]))) // Set Clock: 0x989680 = 10MHz : https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__SWJ__Clock.html
+          .then(controlTransferOutFN(Uint8Array.from([0x13, 0]))) // SWD Configure (1 clock turn around; no wait/fault): https://arm-software.github.io/CMSIS_5/DAP/html/group__DAP__SWD__Configure.html
+          .then(controlTransferOutFN(Uint8Array.from([0x82, 0x00, 0xc2, 0x01, 0x00]))) // Vendor Specific command 2 (ID_DAP_Vendor2): https://github.com/ARMmbed/DAPLink/blob/0711f11391de54b13dc8a628c80617ca5d25f070/source/daplink/cmsis-dap/DAP_vendor.c ;  0x0001c200 = 115,200kBps
           .then(() => { callback("connected", device, null); return Promise.resolve()}) 
           .then(transferLoop)
           .catch(error => callback("error", device, error))
